@@ -1,0 +1,219 @@
+
+<script src="<%= static_path(@conn, "/js/vis.min.js") %>"></script> 
+
+
+<h1>Timeline Chart</h1>
+
+<div id="visualization">
+    <%# <button onClick="getTimeLineData()">Click</button> %>
+</div>
+
+<script type="text/javascript">
+
+    var container = document.getElementById('visualization');
+
+    function renderChart(g, i) {
+        var groups = new vis.DataSet(g)
+        var items  = new vis.DataSet(i)
+
+        var options = {
+            editable: false,    
+            zoomable: true,
+            orientation: {
+                axis: "top"
+            }
+        };
+        //timeline.setOptions({ orientation: {axis: this.value} });
+
+        // Create a Timeline
+        var timeline = new vis.Timeline(container, items, groups, options);
+    }
+
+    function getGroups(data) {
+        console.log(data)
+        var groups = "["
+        for(var d in data) {
+            groups  += '{"id": "' + data[d] + '",'
+                    + '"content": "<div id=block> <b>' + data[d] + '</b></div>"},'                    
+        }
+
+        groups  = groups.substring(0, groups.length - 1)
+        console.log(groups)
+
+        groups += ']'
+        return JSON.parse(groups)
+    }
+
+    function getItems(data) {
+
+        // NOTE: Have to get the date from the database
+        var currentDate = new Date()
+        var day = currentDate.getDate()
+        var month = currentDate.getMonth() + 1
+        var year = currentDate.getFullYear()
+        var da = year + "-" + month + "-" + day
+        var currentTime = String(currentDate).split(" ")[4]
+        
+        var items = "["
+        var color_indicator;
+        for(var obj in data) {
+            movies = data[obj]
+            for(var movie_index in movies) {
+                if (movies[movie_index].end_time < currentTime) {
+                    color_indicator = "completed"
+                    //console.log("Movies completed!!")
+                } else if(movies[movie_index].start_time > currentTime) {
+                    color_indicator = "upcoming"
+                    //console.log("Upcoming movies!!!")
+                } else {
+                    color_indicator = "ongoing"
+                    //console.log("Ongoing movies!!!")
+                }
+                // Outputs the name of the movies
+                //console.log(movies[movie_index].name)
+                items   += '{"start": "' + da + ' ' + movies[movie_index].start_time + '",'
+                        + '"end": "' + da + ' ' + movies[movie_index].end_time + '",'
+                        + '"group": "' + movies[movie_index].screen_name + '",'
+                        + '"content": "' + 
+                        '<div class=tt_mov_img>' +
+                        '<img src=http://cosmiceye.netlify.com/assets/img/demo/spiderman.jpg>' +
+                        '</div>' +
+                        '<div class=' + color_indicator + '>' +
+                        movies[movie_index].name + '<span><i style=color:gray;>  ' +
+                        movies[movie_index].start_time.slice(0, -3) +
+                        '</i></span> </div>"},'
+            }
+        }
+        items  = items.substring(0, items.length - 1)
+        items += "]"
+        return JSON.parse(items)
+    }
+
+    function getTimeLineData() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                var resp = this.responseText
+                resp = JSON.parse(resp)
+                groups = getGroups(Object.keys(resp))
+                items  = getItems(resp)
+                renderChart(groups, items)
+            }
+        };
+        xhttp.open("GET", "/gettimelinedata", true);
+        xhttp.send();
+        //setTimeout(getTimeLineDate, 30000);        
+    }
+    window.onload = function () {
+        getTimeLineData()
+    }
+</script>
+
+<style>
+
+.vis-time-axis .vis-grid.vis-minor {
+      border-width: 1px;
+      border-color: pink;
+}
+
+.tl_audi_name {
+    color: red;
+}
+.vis-label {
+    height: 74px !important;
+    background-color: #f0f4f6;
+    color: #4a4a4a !important;
+    padding-top: 20px;
+}
+.vis-item {
+    background: transparent;
+    border: transparent;
+}
+.vis-item.vis-selected {
+
+}
+.vis-group {
+    height: 74px !important;
+}
+.vis-item-content {
+    padding: 0 !important;
+}
+.tt_mov_img {
+    width: 20%;
+    float: left;
+    height: 58px;
+    background: #999;
+    overflow: hidden;
+}
+.tt_mov_img img {
+    width: 100%;
+}
+
+.ongoing {
+    width: 80%;
+    float: left;
+    padding-left: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 19px;
+    background-color: white;
+    box-shadow: 3px 3px 16px 0 rgba(0,0,0,0.12);
+    height: 48px;
+    margin-top: 10px;
+    padding-top: 21px;
+    overflow: hidden;
+    border-bottom: 4px solid green;
+}
+
+.completed {
+    width: 80%;
+    float: left;
+    padding-left: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 19px;
+    background-color: white;
+    box-shadow: 3px 3px 16px 0 rgba(0,0,0,0.12);
+    height: 48px;
+    margin-top: 10px;
+    padding-top: 21px;
+    overflow: hidden;
+    border-bottom: 4px solid red;
+}
+
+.upcoming {
+    width: 80%;
+    float: left;
+    padding-left: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 19px;
+    background-color: white;
+    box-shadow: 3px 3px 16px 0 rgba(0,0,0,0.12);
+    height: 48px;
+    margin-top: 10px;
+    padding-top: 21px;
+    overflow: hidden;
+    border-bottom: 4px solid blue;
+}
+
+.tt_mov_details {
+    width: 80%;
+    float: left;
+    padding-left: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 19px;
+    background-color: white;
+    box-shadow: 3px 3px 16px 0 rgba(0,0,0,0.12);
+    height: 48px;
+    margin-top: 10px;
+    padding-top: 21px;
+    overflow: hidden;
+}
+
+.tt_mov_details span {
+    color: #9b9b9b !important;
+    font-size: 12px !important;
+}
+</style>

@@ -1,0 +1,91 @@
+<script>
+
+  
+  //var chart     = new Chart(dashboard)
+  //var chart
+  function updateDashboard(l, d, bg, type) {
+    //alert(chart)
+    var dashboard = document.getElementById("dashboard_one").getContext('2d');
+    /* var img = new Image();
+    img.onload = function(){
+        pat = dashboard.createPattern(img,"repeat");
+        dashboar.fillStyle = pat; 
+        dashboard.fill();
+    // now you can create a path and fill it with `pat`
+    }
+    img.src = "<%= static_path(@conn, "/images/phoenix.png") %>"; */
+    var chart = new Chart(dashboard, {
+		    type: type,
+		    data: {
+		        labels: l,
+		        datasets: [{
+		            label: 'List of Items',
+		            data: d,
+		            backgroundColor: bg
+		        }]
+		    }
+		});
+        document.getElementById("img-c").innerHTML = "";
+        for(var i = 0; i < chart.data.datasets[0].data.length; i++) {
+            var pos = chart.data.datasets[0].data[i]
+            var elem = document.createElement("img");
+            elem.setAttribute("height", "15");
+            elem.setAttribute("width", "30");
+            elem.setAttribute("alt", "Flower");
+            document.getElementById("img-c").appendChild(elem);
+        }
+
+        //alert(chart.data.datasets[0].data[0])
+  }
+
+  function updateDashboardTwo(l, d, bg, type) {
+    //alert(chart)
+    var dashboard = document.getElementById("dashboard_two").getContext('2d');
+    var chart = new Chart(dashboard, {
+		    type: type,
+		    data: {
+		        labels: l,
+		        datasets: [{
+		            label: 'List of Items',
+		            data: d,
+		            backgroundColor: bg
+		        }]
+		    }
+		});
+  }
+
+  function loadDoc() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var resp = this.responseText
+      resp  = JSON.parse(resp)
+      label = resp.label
+      data  = resp.data
+      bg    = [
+		                'rgba(44, 120, 115)',
+		                'rgba(0, 68, 69)',
+		                'rgba(7, 87, 91)',
+		                'rgba(52, 103, 92)'
+		            ]
+      updateDashboard(label, data, ['rgba(44, 120, 115)'], 'line')
+      updateDashboardTwo(label, data, bg, 'doughnut')
+          //name = resp.latitute
+          //alert(resp.currently.time)
+          //document.getElementById("msg").innerHTML += resp.latitude;
+      }
+    };
+    xhttp.open("GET", "/tojson", true);
+    xhttp.send();
+    setTimeout(loadDoc, 3000);
+  }
+
+</script>
+<div id="img-c">
+
+</div>
+<div style="width: 500px">
+	<canvas id="dashboard_one"></canvas><br><br>
+  <canvas id="dashboard_two"></canvas>
+</div>
+<button onClick="loadDoc()">Click</button>
