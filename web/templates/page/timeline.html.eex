@@ -4,7 +4,7 @@
 
 <h1>Timeline Chart</h1>
 
-<div id="visualization">
+    <div id="visualization">
     <%# <button onClick="getTimeLineData()">Click</button> %>
 </div>
 
