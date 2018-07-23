@@ -17,6 +17,7 @@
         var items  = new vis.DataSet(i)
 
         var options = {
+            //edges: {selectionWidth: function(width) {return width * 2;}}
             editable: false,    
             zoomable: true,
             orientation: {
@@ -148,7 +149,6 @@
 .tt_mov_img img {
     width: 100%;
 }
-
 .ongoing {
     width: 80%;
     float: left;
@@ -215,5 +215,22 @@
 .tt_mov_details span {
     color: #9b9b9b !important;
     font-size: 12px !important;
+}
+.vis-time-axis.vis-foreground {
+    background-color: #f0f4f6;
+}
+.vis-left {
+    background-color: #f0f4f6;
+    padding-top: 51px;
+    top: 0 !important;
+    height: 100% !important;
+}
+.vis-labelset .vis-label {
+    border: none;
+    border-top: 1px solid #bfbfbf;
+}
+.vis-time-axis .vis-text {
+    margin-left: -21px;
+    color: #9b9b9b;
 }
 </style>
