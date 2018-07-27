@@ -19,7 +19,6 @@ defmodule Dashboard.Router do
     get "/", PageController, :index
     get "/timeline", PageController, :timeline
     post "/timeline", PageController, :timeline
-    get "/tojson", PageController, :tojson
     get "/gettimelinedata", PageController, :timelinedata
 
   end

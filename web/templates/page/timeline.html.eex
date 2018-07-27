@@ -3,9 +3,7 @@
 
 
 <h1>Timeline Chart</h1>
-
-    <div id="visualization">
-    <%# <button onClick="getTimeLineData()">Click</button> %>
+<div id="visualization">
 </div>
 
 <script type="text/javascript">
@@ -17,76 +15,64 @@
         var items  = new vis.DataSet(i)
 
         var options = {
-            //edges: {selectionWidth: function(width) {return width * 2;}}
             editable: false,    
             zoomable: true,
             orientation: {
                 axis: "top"
             }
         };
-        //timeline.setOptions({ orientation: {axis: this.value} });
-
-        // Create a Timeline
         var timeline = new vis.Timeline(container, items, groups, options);
     }
 
     function getGroups(data) {
-        console.log(data)
+        keys = Object.keys(data)
         var groups = "["
-        for(var d in data) {
-            groups  += '{"id": "' + data[d] + '",'
-                    + '"content": "<div id=block> <b>' + data[d] + '</b></div>"},'                    
+        for(var k in keys) {
+            groups  += '{"id": "' + data[keys[k]].title + '",'
+                    + '"content": "<div id=block> <b>' + data[keys[k]].title + '</b></div>"},'
         }
-
         groups  = groups.substring(0, groups.length - 1)
-        console.log(groups)
-
         groups += ']'
         return JSON.parse(groups)
     }
 
     function getItems(data) {
+        var items = '['
 
-        // NOTE: Have to get the date from the database
         var currentDate = new Date()
-        var day = currentDate.getDate()
-        var month = currentDate.getMonth() + 1
-        var year = currentDate.getFullYear()
-        var da = year + "-" + month + "-" + day
         var currentTime = String(currentDate).split(" ")[4]
-        
-        var items = "["
-        var color_indicator;
-        for(var obj in data) {
-            movies = data[obj]
-            for(var movie_index in movies) {
-                if (movies[movie_index].end_time < currentTime) {
+
+        var keys = Object.keys(data)
+        var shows, showsKey, color_indicator;
+        for(var k in keys) {
+            shows = data[keys[k]].shows
+            showsKey = Object.keys(shows)
+            for(var sk in showsKey) {
+                var arr = shows[showsKey[sk]]
+                if (arr[0].show_end_time.split('T')[1] < currentTime) {
                     color_indicator = "completed"
-                    //console.log("Movies completed!!")
-                } else if(movies[movie_index].start_time > currentTime) {
+                } else if(arr[0].show_start_time.split('T')[1] > currentTime) {
                     color_indicator = "upcoming"
-                    //console.log("Upcoming movies!!!")
                 } else {
                     color_indicator = "ongoing"
-                    //console.log("Ongoing movies!!!")
-                }
-                // Outputs the name of the movies
-                //console.log(movies[movie_index].name)
-                items   += '{"start": "' + da + ' ' + movies[movie_index].start_time + '",'
-                        + '"end": "' + da + ' ' + movies[movie_index].end_time + '",'
-                        + '"group": "' + movies[movie_index].screen_name + '",'
+                }   
+                console.log(color_indicator)
+                items   += '{"start": "' + arr[0].show_start_time + '",'
+                        + '"end": "' + arr[0].show_end_time + '",'
+                        + '"group": "' + data[keys[k]].title + '",'
                         + '"content": "' + 
                         '<div class=tt_mov_img>' +
-                        '<img src=http://cosmiceye.netlify.com/assets/img/demo/spiderman.jpg>' +
+                        '<img src=' + arr[1].image_url + '>' +
                         '</div>' +
                         '<div class=' + color_indicator + '>' +
-                        movies[movie_index].name + '<span><i style=color:gray;>  ' +
-                        movies[movie_index].start_time.slice(0, -3) +
+                        arr[1].title + '<span><i style=color:gray;>  ' +
+                        String(arr[0].show_start_time).split('T')[1].slice(0, -3) +
                         '</i></span> </div>"},'
+
             }
         }
         items  = items.substring(0, items.length - 1)
-        items += "]"
+        items += ']'
         return JSON.parse(items)
     }
 
@@ -96,7 +82,7 @@
             if (this.readyState == 4 && this.status == 200) {
                 var resp = this.responseText
                 resp = JSON.parse(resp)
-                groups = getGroups(Object.keys(resp))
+                groups = getGroups(resp)
                 items  = getItems(resp)
                 renderChart(groups, items)
             }
