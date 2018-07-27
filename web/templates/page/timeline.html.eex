@@ -16,7 +16,7 @@
 
         var options = {
             editable: false,    
-            zoomable: true,
+            zoomable: false,
             orientation: {
                 axis: "top"
             }
